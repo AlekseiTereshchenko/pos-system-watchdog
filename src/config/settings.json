@@ -17,11 +17,125 @@
   "scheduler": {
     "maxParallelTasks": 3,
     "tasks": [
-      { "name": "KafkaExport", "endpoint": "/sched/kafka-export", "intervalSec": 60, "timeoutSec": 50, "enabled": true },
-      { "name": "OrdersSync", "endpoint": "/sched/orders-sync", "intervalSec": 300, "timeoutSec": 180, "enabled": true },
-      { "name": "PriceUpdate", "endpoint": "/sched/price-update", "intervalSec": 300, "timeoutSec": 180, "enabled": true },
-      { "name": "StockUpdate", "endpoint": "/sched/stock-update", "intervalSec": 300, "timeoutSec": 180, "enabled": true },
-      { "name": "NsiSync", "endpoint": "/sched/nsi-sync", "intervalSec": 1800, "timeoutSec": 600, "enabled": true }
+      {
+        "name": "ПодготовкаДанныхKafka",
+        "endpoint": "/sched/kafka-prepare",
+        "schedule": { "type": "interval", "intervalSec": 300, "startTime": "06:00", "endTime": "23:59" },
+        "timeoutSec": 240,
+        "enabled": true
+      },
+      {
+        "name": "ВыгрузкаДанныхKafka",
+        "endpoint": "/sched/kafka-export",
+        "schedule": { "type": "interval", "intervalSec": 300, "startTime": "08:57", "endTime": "23:55" },
+        "timeoutSec": 240,
+        "enabled": true
+      },
+      {
+        "name": "АктуализацияДанныхЗаказовKafka",
+        "endpoint": "/sched/orders-kafka-sync",
+        "schedule": { "type": "interval", "intervalSec": 1800, "startTime": "08:15", "endTime": "23:59" },
+        "timeoutSec": 600,
+        "enabled": true
+      },
+      {
+        "name": "ЗагрузкаЗаказовНаСамовывоз",
+        "endpoint": "/sched/pickup-orders",
+        "schedule": { "type": "interval", "intervalSec": 1800, "startTime": "08:00", "endTime": "23:59" },
+        "timeoutSec": 600,
+        "enabled": true
+      },
+      {
+        "name": "АктуализацияОстатков",
+        "endpoint": "/sched/stock-update",
+        "schedule": { "type": "daily", "runAt": "09:00" },
+        "timeoutSec": 600,
+        "enabled": true
+      },
+      {
+        "name": "ЗагрузкаЦенНоменклатуры",
+        "endpoint": "/sched/price-update",
+        "schedule": { "type": "daily", "runAt": "09:10" },
+        "timeoutSec": 600,
+        "enabled": true
+      },
+      {
+        "name": "РасчетПопулярностиТоваров",
+        "endpoint": "/sched/popularity-calc",
+        "schedule": { "type": "daily", "runAt": "09:35" },
+        "timeoutSec": 600,
+        "enabled": true
+      },
+      {
+        "name": "ЗагрузкаШтрихкодовНоменклатуры",
+        "endpoint": "/sched/barcodes-update",
+        "schedule": { "type": "daily", "runAt": "09:45" },
+        "timeoutSec": 600,
+        "enabled": true
+      },
+      {
+        "name": "ЗаполнениеПризнакаУчетаСерий",
+        "endpoint": "/sched/series-flag",
+        "schedule": { "type": "daily", "runAt": "09:50" },
+        "timeoutSec": 300,
+        "enabled": true
+      },
+      {
+        "name": "АктуализацияБанковскихСчетов",
+        "endpoint": "/sched/bank-accounts",
+        "schedule": { "type": "daily", "runAt": "10:10" },
+        "timeoutSec": 300,
+        "enabled": true
+      },
+      {
+        "name": "ЗагрузкаДанныхСкладов",
+        "endpoint": "/sched/warehouses-update",
+        "schedule": { "type": "daily", "runAt": "10:20" },
+        "timeoutSec": 300,
+        "enabled": true
+      },
+      {
+        "name": "СведенияНоменклатуры",
+        "endpoint": "/sched/nomenclature-info",
+        "schedule": { "type": "daily", "runAt": "10:30" },
+        "timeoutSec": 600,
+        "enabled": true
+      },
+      {
+        "name": "ЗагрузкаДанныхТорговыхТочек",
+        "endpoint": "/sched/stores-update",
+        "schedule": { "type": "daily", "runAt": "06:00" },
+        "timeoutSec": 300,
+        "enabled": true
+      },
+      {
+        "name": "ЗагрузкаДанныхТранспортныхКомпаний",
+        "endpoint": "/sched/transport-update",
+        "schedule": { "type": "daily", "runAt": "06:00" },
+        "timeoutSec": 300,
+        "enabled": true
+      },
+      {
+        "name": "АктуализацияМаркАкций",
+        "endpoint": "/sched/promo-marks",
+        "schedule": { "type": "daily", "runAt": "07:00" },
+        "timeoutSec": 300,
+        "enabled": true
+      },
+      {
+        "name": "АктуализацияСтатусовЗаказов",
+        "endpoint": "/sched/order-statuses",
+        "schedule": { "type": "daily", "runAt": "07:30" },
+        "timeoutSec": 300,
+        "enabled": true
+      },
+      {
+        "name": "ЗагрузкаСведенийОСотрудниках",
+        "endpoint": "/sched/employees-update",
+        "schedule": { "type": "daily", "runAt": "06:30" },
+        "timeoutSec": 300,
+        "enabled": true
+      }
     ]
   },
   "health": {

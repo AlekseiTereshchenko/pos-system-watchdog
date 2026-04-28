@@ -35,12 +35,14 @@ $maxRetries = 3
 
 foreach ($task in $config.scheduler.tasks) {
     $taskState[$task.name] = @{
-        LastRun    = [datetime]::MinValue
-        Running    = $false
-        Job        = $null
-        LastResult = $null
-        LastError  = $null
-        Duration   = $null
+        LastRun      = [datetime]::MinValue
+        Running      = $false
+        Job          = $null
+        LastResult   = $null
+        LastError    = $null
+        Duration     = $null
+        RanToday     = $false
+        RanTodayDate = $null
     }
     $taskRetries[$task.name] = 0
 }
@@ -104,6 +106,11 @@ function Start-ScheduledTask {
     $state.Running = $true
     $state.LastRun = Get-Date
 
+    if ($TaskConfig.schedule.type -eq 'daily') {
+        $state.RanToday = $true
+        $state.RanTodayDate = (Get-Date).Date
+    }
+
     Write-PosLog -Level INFO -Message "Starting task '$($TaskConfig.name)' -> $($TaskConfig.endpoint)" -Component 'scheduler'
 
     $scriptBlock = Get-TaskRunScriptBlock
@@ -166,8 +173,47 @@ function Test-TaskDue {
     if (-not $TaskConfig.enabled) { return $false }
 
     $state = $taskState[$TaskConfig.name]
-    $elapsed = (Get-Date) - $state.LastRun
-    return $elapsed.TotalSeconds -ge $TaskConfig.intervalSec
+    $now = Get-Date
+    $schedule = $TaskConfig.schedule
+
+    if ($state.RanTodayDate -and $state.RanTodayDate -ne $now.Date) {
+        $state.RanToday = $false
+        $state.RanTodayDate = $null
+    }
+
+    switch ($schedule.type) {
+        'daily' {
+            if ($state.RanToday) { return $false }
+
+            $runAt = [datetime]::ParseExact($schedule.runAt, 'HH:mm', $null)
+            $targetTime = $now.Date.Add($runAt.TimeOfDay)
+
+            if ($now -ge $targetTime -and $now -lt $targetTime.AddMinutes(10)) {
+                return $true
+            }
+            return $false
+        }
+
+        'interval' {
+            $startTime = if ($schedule.PSObject.Properties['startTime']) {
+                $now.Date.Add([datetime]::ParseExact($schedule.startTime, 'HH:mm', $null).TimeOfDay)
+            } else { $now.Date }
+
+            $endTime = if ($schedule.PSObject.Properties['endTime']) {
+                $now.Date.Add([datetime]::ParseExact($schedule.endTime, 'HH:mm', $null).TimeOfDay)
+            } else { $now.Date.AddDays(1) }
+
+            if ($now -lt $startTime -or $now -gt $endTime) { return $false }
+
+            $elapsed = ($now - $state.LastRun).TotalSeconds
+            return $elapsed -ge $schedule.intervalSec
+        }
+
+        default {
+            Write-PosLog -Level WARNING -Message "Unknown schedule type '$($schedule.type)' for task '$($TaskConfig.name)'" -Component 'scheduler'
+            return $false
+        }
+    }
 }
 
 # --- Shared state file for health endpoint ---
