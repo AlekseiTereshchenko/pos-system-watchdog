@@ -101,30 +101,37 @@ function Send-JsonResponse {
 # --- Main loop ---
 Write-PosLog -Level INFO -Message 'Entering main loop' -Component 'health'
 
-while ($listener.IsListening) {
-    try {
-        $context = $listener.GetContext()
-        $request = $context.Request
-        $response = $context.Response
+try {
+    while ($listener.IsListening) {
+        try {
+            $context = $listener.GetContext()
+            $request = $context.Request
+            $response = $context.Response
 
-        $path = $request.Url.AbsolutePath.TrimEnd('/')
+            $path = $request.Url.AbsolutePath.TrimEnd('/')
 
-        switch ($path) {
-            '/health' {
-                $data = Build-HealthResponse
-                Send-JsonResponse -Response $response -Data $data
+            switch ($path) {
+                '/health' {
+                    $data = Build-HealthResponse
+                    Send-JsonResponse -Response $response -Data $data
+                }
+                '/ping' {
+                    Send-JsonResponse -Response $response -Data @{ status = 'ok'; timestamp = (Get-Date).ToString('o') }
+                }
+                default {
+                    Send-JsonResponse -Response $response -Data @{ error = 'Not Found' } -StatusCode 404
+                }
             }
-            '/ping' {
-                Send-JsonResponse -Response $response -Data @{ status = 'ok'; timestamp = (Get-Date).ToString('o') }
-            }
-            default {
-                Send-JsonResponse -Response $response -Data @{ error = 'Not Found' } -StatusCode 404
-            }
+
+            Write-PosLog -Level DEBUG -Message "$($request.HttpMethod) $path -> $($response.StatusCode)" -Component 'health'
         }
-
-        Write-PosLog -Level DEBUG -Message "$($request.HttpMethod) $path -> $($response.StatusCode)" -Component 'health'
+        catch {
+            Write-PosLog -Level ERROR -Message "Health endpoint error: $_" -Component 'health'
+        }
     }
-    catch {
-        Write-PosLog -Level ERROR -Message "Health endpoint error: $_" -Component 'health'
-    }
+}
+finally {
+    Write-PosLog -Level INFO -Message 'Stopping health endpoint listener' -Component 'health'
+    $listener.Stop()
+    $listener.Close()
 }

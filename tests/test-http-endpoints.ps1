@@ -41,11 +41,23 @@ Write-Host "Base URL: $BaseUrl"
 Write-Host "========================================"
 
 Test-Endpoint -Name 'Fiscal Status' -Endpoint '/sched/fiscal-status' -Method 'GET'
-Test-Endpoint -Name 'Kafka Export' -Endpoint '/sched/kafka-export'
-Test-Endpoint -Name 'Orders Sync' -Endpoint '/sched/orders-sync'
-Test-Endpoint -Name 'Price Update' -Endpoint '/sched/price-update'
-Test-Endpoint -Name 'Stock Update' -Endpoint '/sched/stock-update'
-Test-Endpoint -Name 'NSI Sync' -Endpoint '/sched/nsi-sync'
+Test-Endpoint -Name 'ПодготовкаДанныхKafka' -Endpoint '/sched/kafka-prepare'
+Test-Endpoint -Name 'ВыгрузкаДанныхKafka' -Endpoint '/sched/kafka-export'
+Test-Endpoint -Name 'АктуализацияДанныхЗаказовKafka' -Endpoint '/sched/orders-kafka-sync'
+Test-Endpoint -Name 'ЗагрузкаЗаказовНаСамовывоз' -Endpoint '/sched/pickup-orders'
+Test-Endpoint -Name 'АктуализацияОстатков' -Endpoint '/sched/stock-update'
+Test-Endpoint -Name 'ЗагрузкаЦенНоменклатуры' -Endpoint '/sched/price-update'
+Test-Endpoint -Name 'РасчетПопулярностиТоваров' -Endpoint '/sched/popularity-calc'
+Test-Endpoint -Name 'ЗагрузкаШтрихкодовНоменклатуры' -Endpoint '/sched/barcodes-update'
+Test-Endpoint -Name 'ЗаполнениеПризнакаУчетаСерий' -Endpoint '/sched/series-flag'
+Test-Endpoint -Name 'АктуализацияБанковскихСчетов' -Endpoint '/sched/bank-accounts'
+Test-Endpoint -Name 'ЗагрузкаДанныхСкладов' -Endpoint '/sched/warehouses-update'
+Test-Endpoint -Name 'СведенияНоменклатуры' -Endpoint '/sched/nomenclature-info'
+Test-Endpoint -Name 'ЗагрузкаДанныхТорговыхТочек' -Endpoint '/sched/stores-update'
+Test-Endpoint -Name 'ЗагрузкаДанныхТранспортныхКомпаний' -Endpoint '/sched/transport-update'
+Test-Endpoint -Name 'АктуализацияМаркАкций' -Endpoint '/sched/promo-marks'
+Test-Endpoint -Name 'АктуализацияСтатусовЗаказов' -Endpoint '/sched/order-statuses'
+Test-Endpoint -Name 'ЗагрузкаСведенийОСотрудниках' -Endpoint '/sched/employees-update'
 
 Write-Host "`n========================================"
 Write-Host "Results: $passed passed, $failed failed" -ForegroundColor $(if ($failed -eq 0) { 'Green' } else { 'Red' })

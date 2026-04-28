@@ -38,6 +38,11 @@ function Send-TelegramAlert {
     }
 
     $cooldownKey = "$Level|$Message"
+
+    $cutoff = (Get-Date).AddMinutes(-$script:CooldownMinutes)
+    $staleKeys = @($script:AlertCooldown.Keys | Where-Object { $script:AlertCooldown[$_] -lt $cutoff })
+    foreach ($k in $staleKeys) { $script:AlertCooldown.Remove($k) }
+
     if (-not $BypassCooldown -and $script:AlertCooldown.ContainsKey($cooldownKey)) {
         $lastSent = $script:AlertCooldown[$cooldownKey]
         if ((Get-Date) - $lastSent -lt [TimeSpan]::FromMinutes($script:CooldownMinutes)) {
@@ -50,7 +55,7 @@ function Send-TelegramAlert {
         'INFO'     { [char]0x2139 }
         'WARNING'  { [char]0x26A0 }
         'ERROR'    { [char]0x274C }
-        'CRITICAL' { [char]0x1F6A8 }
+        'CRITICAL' { [System.Char]::ConvertFromUtf32(0x1F6A8) }
     }
 
     $storePrefix = if ($StoreId) { "[$StoreId] " } else { '' }
