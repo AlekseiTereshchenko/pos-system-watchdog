@@ -1,0 +1,40 @@
+{
+  "storeId": "STORE-001",
+  "oneC": {
+    "exePath": "C:\\Program Files\\1cv8\\8.3.25.1257\\bin\\1cv8.exe",
+    "basePath": "C:\\Base1C\\Retail",
+    "clientUser": "КассирАвто",
+    "clientPassword": "",
+    "httpBaseUrl": "http://localhost/retail/hs"
+  },
+  "watchdog": {
+    "checkIntervalSec": 10,
+    "unhealthyThreshold": 3,
+    "maxRestartsPerHour": 5,
+    "processStartTimeoutSec": 120,
+    "fiscalQueueStaleMins": 2
+  },
+  "scheduler": {
+    "maxParallelTasks": 3,
+    "tasks": [
+      { "name": "KafkaExport", "endpoint": "/sched/kafka-export", "intervalSec": 60, "timeoutSec": 50, "enabled": true },
+      { "name": "OrdersSync", "endpoint": "/sched/orders-sync", "intervalSec": 300, "timeoutSec": 180, "enabled": true },
+      { "name": "PriceUpdate", "endpoint": "/sched/price-update", "intervalSec": 300, "timeoutSec": 180, "enabled": true },
+      { "name": "StockUpdate", "endpoint": "/sched/stock-update", "intervalSec": 300, "timeoutSec": 180, "enabled": true },
+      { "name": "NsiSync", "endpoint": "/sched/nsi-sync", "intervalSec": 1800, "timeoutSec": 600, "enabled": true }
+    ]
+  },
+  "health": {
+    "port": 8095
+  },
+  "telegram": {
+    "botToken": "",
+    "chatId": "",
+    "cooldownMinutes": 15
+  },
+  "logging": {
+    "path": "C:\\PosLogs",
+    "maxFileSizeMB": 10,
+    "retentionDays": 30
+  }
+}
